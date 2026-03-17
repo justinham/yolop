@@ -26,11 +26,10 @@ def show_seg_result(img, result, index, epoch, save_dir=None, is_ll=False,palett
     # img = img.copy()
     # seg = result[0]
     if palette is None:
-        palette = np.random.randint(
-                0, 255, size=(3, 3))
+        palette = np.random.randint(0, 255, size=(3, 3))
     palette[0] = [0, 0, 0]
-    palette[1] = [0, 255, 0]
-    palette[2] = [255, 0, 0]
+    palette[1] = [0, 255, 0] # drivable space
+    palette[2] = [255, 0, 0] # line
     palette = np.array(palette)
     assert palette.shape[0] == 3 # len(classes)
     assert palette.shape[1] == 3
@@ -46,7 +45,8 @@ def show_seg_result(img, result, index, epoch, save_dir=None, is_ll=False,palett
         # for label, color in enumerate(palette):
         #     color_area[result[0] == label, :] = color
 
-        color_area[result[0] == 1] = [0, 255, 0]
+        # color_area[result[0] == 1] = [0, 255, 0]
+        color_area[result[0] == 1] = [0, 0, 0] ## rm drivable space
         color_area[result[1] ==1] = [255, 0, 0]
         color_seg = color_area
 
@@ -54,7 +54,8 @@ def show_seg_result(img, result, index, epoch, save_dir=None, is_ll=False,palett
     color_seg = color_seg[..., ::-1]
     # print(color_seg.shape)
     color_mask = np.mean(color_seg, 2)
-    img[color_mask != 0] = img[color_mask != 0] * 0.5 + color_seg[color_mask != 0] * 0.5
+    img[color_mask != 0] = color_seg[color_mask != 0]
+    # img[color_mask != 0] = img[color_mask != 0] * 0.5 + color_seg[color_mask != 0] * 0.5
     # img = img * 0.5 + color_seg * 0.5
     img = img.astype(np.uint8)
     img = cv2.resize(img, (1280,720), interpolation=cv2.INTER_LINEAR)
